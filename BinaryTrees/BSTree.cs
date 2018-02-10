@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace BinaryTrees
 {
-    public class BSTree <KeyT> : BinaryTree <BSTreeNode<KeyT>, KeyT> where KeyT : IComparable
+    public class BSTree <KeyT> : BinaryTree <BSTreeNode<KeyT>, KeyT> 
+        where KeyT : IComparable
     {
         #region PROTECTED METHODS
         protected override void InsertNode(BSTreeNode<KeyT> parentNode, BSTreeNode<KeyT> newNode)
