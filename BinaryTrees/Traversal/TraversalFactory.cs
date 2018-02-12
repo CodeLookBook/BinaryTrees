@@ -11,7 +11,7 @@ namespace BinaryTrees.Traversal
         where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>, new()
         where KeyT  : IComparable<KeyT>
     {
-        ITraversal<NodeT, KeyT> Create(TraversalType type, TraversalMode direction)
+        ITraversal<NodeT, KeyT> Create(TraversalType type)
         {
             ITraversal<NodeT, KeyT> traverse = null;
 

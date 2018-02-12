@@ -1,305 +1,157 @@
-﻿using System;
+﻿using BinaryTrees.Traversal;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace BinaryTrees
 {
-    public abstract class BinaryTree <NodeT, KeyT> : IBinaryTree<KeyT>
-        
-        where NodeT: class, IBinaryTreeNode<NodeT, KeyT>, new()
-        where KeyT : IComparable
+    public abstract class BinaryTree<NodeT, KeyT> : IBinaryTree<NodeT, KeyT>
+
+        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>
+        where KeyT  : IComparable<KeyT>
     {
         #region FIELDS
-        private NodeT rootNode;
+        private NodeT                  root;
+        private ITraversal<NodeT,KeyT> traversal;
+        private TraversalMode          traversalMode;
         #endregion
 
         #region PROPERTIES
-        protected NodeT RootNode { get => this.rootNode; set => this.rootNode = value; }
-        public    int   Count    { get; protected set; }
-        #endregion
-
-        #region EVENTS
-        public event EventHandler<KeyT> OnInserted;
-        public event EventHandler<KeyT> OnRemoved ;
-        #endregion
-
-        #region CONSTRUCTORS
-        public BinaryTree()
+        public NodeT Root                  { get => this.root         ; set => this.root     = value; }
+        public TraversalMode TraversalMode { get => this.traversalMode; set => traversalMode = value; }
+        public ITraversal<NodeT, KeyT> Traversal
         {
-            this.OnInserted += BinaryTree_OnInserted;
-            this.OnRemoved  += BinaryTree_OnRemoved ;
+            get => this.traversal;
+            set => this.traversal = value ?? throw new ArgumentNullException(nameof(value));
+        }
+        public int   Count { get; protected set; }
+        #endregion
+
+        #region CONSTRUCTOR
+        public BinaryTree(ITraversal<NodeT, KeyT> traversal, TraversalMode traversalMode)
+        {
+            this.Traversal = traversal;
         }
         #endregion
 
         #region PUBLIC METHODS
-        public void Insert(KeyT key)
+        public abstract void Insert(KeyT key);
+        public void Insert  (params KeyT[]     keys)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            foreach (var key in keys) { this.Insert(key); }
+        }
+        public void Insert  (IEnumerable<KeyT> keys)
+        {
+            foreach (var key in keys) { this.Insert(key); }
+        }
 
-            var newNode = new NodeT { Key = key };
+        public bool Contains(KeyT key)
+        {
+            return (this.Find(key) != null);
+        }
+        public bool Contains(params KeyT[]     keys)
+        {
+            var contains = true;
 
-            if (this.RootNode == null)
+            foreach (var key in keys)
             {
-                this.RootNode = newNode;
-            }
-            else
-            {
-                this.InsertNode(this.RootNode, newNode);
-            }
-
-            this.OnInserted?.Invoke(this, key);
-        }
-        public bool Search(KeyT key)
-        {
-            return this.SearchNode(this.RootNode, key);
-        }
-        public void Remove(KeyT key)
-        {
-            this.RootNode = this.RemoveNode(this.RootNode, key);
-        }
-
-        public void InOrderTraverse  (Action<KeyT> action)
-        {
-            this.InOrderTraverseNode(this.RootNode, action);
-        }
-        public void PreOrderTraverse (Action<KeyT> action)
-        {
-            this.PreOrderTraverseNode(this.RootNode, action);
-        }
-        public void PostOrderTraverse(Action<KeyT> action)
-        {
-            this.PostOrderTraverseNode(this.RootNode, action);
-        }
-
-        public KeyT Min()
-        {
-            return this.MinNode(this.RootNode);
-        }
-        public KeyT Max()
-        {
-            return this.MaxNode(this.RootNode);
-        }
-        #endregion
-
-        #region PROTECTED METHODS
-        protected abstract void InsertNode(NodeT parentNode, NodeT newNode);
-
-        /// <summary>
-        /// Searches tree node by key value.
-        /// </summary>
-        /// <param name="key">Key value</param>
-        /// <returns>Node instance or null - if node doesn't excist.</returns>
-        private NodeT Find(KeyT key)
-        {
-            var current = this.RootNode;
-
-            while (current != null)
-            {
-                int result = Comparer<KeyT>.Default.Compare(current.Key, key);
-
-                if (result > 0)
+                if (!this.Contains(key))
                 {
-                    current = current.LeftNode;
-                }
-                else if (result < 0)
-                {
-                    current = current.RightNode;
-                }
-                else
-                {
+                    contains = false;
                     break;
                 }
             }
-            return current;
+
+            return contains;
         }
-
-
-        protected bool SearchNode           (NodeT node, KeyT         key   )
+        public bool Contains(IEnumerable<KeyT> keys)
         {
-            bool isFind = false;
+            var contains = true;
 
-            if (node == null)
+            foreach (var key in keys)
             {
-                isFind = false;
-            }
-            else
-            {
-                if (Comparer<KeyT>.Default.Compare(key, node.Key) < 0)
+                if (!this.Contains(key))
                 {
-                    isFind = this.SearchNode(node.LeftNode, key);
-                }
-                else
-                {
-                    if (Comparer<KeyT>.Default.Compare(key, node.Key) > 0)
-                    {
-                        isFind = this.SearchNode(node.RightNode, key);
-                    }
-                    else
-                    {
-                        isFind = true;
-                    }
+                    contains = false;
+                    break;
                 }
             }
 
-            return isFind;
-        }
-        protected void InOrderTraverseNode  (NodeT node, Action<KeyT> action)
-        {
-            if (node != null)
-            {
-                this.InOrderTraverseNode(node.LeftNode, action);
-
-                action(node.Key);
-
-                this.InOrderTraverseNode(node.RightNode, action);
-            }
-        }
-        protected void PreOrderTraverseNode (NodeT node, Action<KeyT> action)
-        {
-            if (node != null)
-            {
-                action(node.Key);
-
-                this.PreOrderTraverseNode(node.LeftNode, action);
-                this.PreOrderTraverseNode(node.RightNode, action);
-            }
-        }
-        protected void PostOrderTraverseNode(NodeT node, Action<KeyT> action)
-        {
-            if (node != null)
-            {
-                this.PostOrderTraverseNode(node.LeftNode, action);
-                this.PostOrderTraverseNode(node.RightNode, action);
-
-                action(node.Key);
-            }
+            return contains;
         }
 
-        protected KeyT MinNode(NodeT node)
+        public abstract bool Remove(KeyT key);
+        public bool Remove  (params KeyT[]     keys )
         {
-            KeyT min  = default(KeyT);
-
-            if (node != null)
-            {
-                while (node != null && node.LeftNode != null)
-                {
-                    node = node.LeftNode;
-                }
-
-                min  = node.Key;
-            }
-            
-            return min;
+            throw new NotImplementedException();
         }
-        protected KeyT MaxNode(NodeT node)
+        public bool Remove  (IEnumerable<KeyT> keys )
         {
-            KeyT max = default(KeyT);
-
-            if (node != null)
-            {
-                while (node != null && node.RightNode != null)
-                {
-                    node = node.RightNode;
-                }
-
-                max = node.Key;
-            }
-
-            return max;
+            throw new NotImplementedException();
+        }
+        public bool Remove  (Predicate<KeyT>   match)
+        {
+            throw new NotImplementedException();
         }
 
-        protected NodeT RemoveNode (NodeT node, KeyT key)
+        public void CopyTo  (KeyT[] array)
         {
-            if (node != null)
-            {
-                if (Comparer<KeyT>.Default.Compare(key, node.Key) < 0)
-                {
-                    node.LeftNode = this.RemoveNode(node.LeftNode, key);
-                }
-                else if (Comparer<KeyT>.Default.Compare(key, node.Key) > 0)
-                {
-                    node.RightNode = this.RemoveNode(node.RightNode, key);
-                }
-                else
-                {
-                    KeyT e = default(KeyT);
-
-                    if (node.RightNode == null && node.LeftNode == null)
-                    {
-                        e    = node.Key;
-                        node = null;
-                    }
-                    else
-                    {
-                        if (node.LeftNode == null)
-                        {
-                            e    = node.Key;
-                            node = node.RightNode;                        
-                        }
-                        else if (node.RightNode == null)
-                        {
-                            e    = node.Key;
-                            node = node.LeftNode;
-                        }
-                        else
-                        {
-                            e = node.Key;
-
-                            var aux = this.FindMinNode(node.RightNode);
-
-                            node.Key = aux.Key;
-                            node.RightNode = this.RemoveNode(node.RightNode, aux.Key);
-                        }
-                    }
-
-                    this.OnRemoved?.Invoke(this, e);
-                }
-
-            }
-
-            return node;
-        }
-        protected NodeT FindMinNode(NodeT node)
-        {
-            while (node != null && node.LeftNode != null)
-            {
-                node = node.LeftNode;
-            }
-
-            return node;
+            throw new NotImplementedException();
         }
 
-        public override bool Equals(object obj)
+        public void Clear()
         {
-            return this.Equals(obj as BinaryTree<NodeT, KeyT>);
-        }
-        public virtual  bool Equals(IBinaryTree<KeyT> other)
-        {
-            bool Comparer(NodeT n1, NodeT n2)
-            {
-                return (n1.CompareTo(n2) == 0             ) && 
-                       Comparer(n1.LeftNode , n2.LeftNode ) &&
-                       Comparer(n1.RightNode, n2.RightNode);
-            }
-
-            return Comparer(this.RootNode, (other as BinaryTree<NodeT, KeyT>).RootNode);
+            throw new NotImplementedException();
         }
 
-        public override int GetHashCode()
+        public bool Any()
         {
-            return -120845931 + EqualityComparer<NodeT>.Default.GetHashCode(RootNode);
+            throw new NotImplementedException();
+        }
+        public bool Any(Func<KeyT, bool> predicate)
+        {
+            throw new NotImplementedException();
+        }
+        public bool All(Func<KeyT, bool> predicate)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
-        #region EVENT HANDLERS
-        private void BinaryTree_OnInserted(object sender, KeyT e)
+        #region PRIVATE METHODS
+        protected NodeT Find(KeyT key)
         {
-            this.Count++;
+            var current = this.Root;
+            var found   = false; 
+
+            while (current != null && !found)
+            {
+                switch (current.Key.CompareTo(key))
+                {
+                    case  1: current = current.Left ; break;
+                    case -1: current = current.Right; break;
+                    case  0: found   = true         ; break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            return current;
         }
-        private void BinaryTree_OnRemoved (object sender, KeyT e)
+        #endregion
+
+        #region FACTORY METHODS
+        protected virtual ITraversal<NodeT, KeyT> CreateTraversal(TraversalType type)
         {
-            this.Count--;
+            switch (type)
+            {
+                case TraversalType.InOrder  : return new InOrderTraversal  <NodeT, KeyT>();
+                case TraversalType.PreOrder : return new PreOrderTraversal <NodeT, KeyT>();
+                case TraversalType.PostOrder: return new PostOrderTraversal<NodeT, KeyT>();
+                default: throw new InvalidEnumArgumentException();
+            }
         }
+
         #endregion
     }
 }

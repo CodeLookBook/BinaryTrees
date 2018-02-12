@@ -44,11 +44,22 @@
     <Compile Include="AVLTreeNode.cs" />
     <Compile Include="BinaryTree.cs" />
     <Compile Include="BinaryTreeNode.cs" />
+    <Compile Include="Comparers\BinaryTreeNodeComparer.cs" />
+    <Compile Include="Traversal\Traversal.cs" />
+    <Compile Include="Traversal\TraversalFactory.cs" />
+    <Compile Include="Traversal\InOrderTraversal.cs" />
     <Compile Include="BSTree.cs" />
     <Compile Include="BSTreeNode.cs" />
     <Compile Include="IBinaryTree.cs" />
     <Compile Include="IBinaryTreeNode.cs" />
+    <Compile Include="Traversal\ITraversal.cs" />
+    <Compile Include="Traversal\PostOrderTraversal.cs" />
+    <Compile Include="Traversal\PreOrderTraversal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Traversal\TraversalMode.cs" />
+    <Compile Include="Traversal\TraversalType.cs" />
+    <Compile Include="TreeState.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

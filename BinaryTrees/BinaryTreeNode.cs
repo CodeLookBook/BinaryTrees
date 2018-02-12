@@ -1,68 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BinaryTrees
 {
-    public abstract class BinaryTreeNode <NodeT, KeyT> : IBinaryTreeNode<NodeT, KeyT>
-
-        where NodeT: class, IBinaryTreeNode<NodeT, KeyT>, new()
-        where KeyT : IComparable
-
+    public abstract class BinaryTreeNode<NodeT, KeyT> : IBinaryTreeNode<NodeT, KeyT>
+        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>
+        where KeyT  : IComparable <KeyT>
     {
-        #region FIELDS       
-        private KeyT  key      ;
-        private NodeT leftNode ;
-        private NodeT rightNode;
+        #region FIELDS
+        private KeyT  key   ;
+        private NodeT parent;
+        private NodeT left  ;
+        private NodeT right ;
         #endregion
 
         #region PROPERTIES
-        public KeyT  Key
-        {
-            get => key;
-            set => key = (value == null) ? 
-                   throw new ArgumentNullException(nameof(value)) : value;
-        }
-        public NodeT LeftNode  { get => leftNode ; set => leftNode  = value; }
-        public NodeT RightNode { get => rightNode; set => rightNode = value; }
+        public KeyT  Key    { get => this.key   ; set => this.key    = value; }
+        public NodeT Parent { get => this.parent; set => this.parent = value; }
+        public NodeT Left   { get => this.left  ; set => this.left   = value; }
+        public NodeT Right  { get => this.right ; set => this.right  = value; }
         #endregion
 
         #region CONSTRUCTORS
-        public BinaryTreeNode()
-        {
-
-        }
-        public BinaryTreeNode(KeyT key)
+        public BinaryTreeNode(KeyT key) 
         {
             this.Key = key;
         }
-        public BinaryTreeNode(KeyT key, NodeT leftNode, NodeT rightNode) : this(key)
+        public BinaryTreeNode(KeyT key, NodeT parent) : this(key)
         {
-            this.LeftNode  = leftNode ;
-            this.RightNode = rightNode;
+            this.Parent = parent;
+        }
+        public BinaryTreeNode(KeyT key, NodeT parent, NodeT left, NodeT right) : this(key, parent)
+        {
+            this.Left  = left ;
+            this.Right = right;
         }
         #endregion
 
-        #region PUBLIC METHODS
+        #region METHODS
         public override bool Equals(object obj  )
         {
-            return Equals(obj as BinaryTreeNode<NodeT, KeyT>);
+            return Equals(obj as NodeT);
         }
         public          bool Equals(NodeT  other)
-        {            
+        {
             return other != null &&
-                   EqualityComparer<KeyT >.Default.Equals(Key      , other.Key      ) &&
-                   EqualityComparer<NodeT>.Default.Equals(LeftNode , other.LeftNode ) &&
-                   EqualityComparer<NodeT>.Default.Equals(RightNode, other.RightNode);
+                   EqualityComparer<NodeT>.Default.Equals(Parent, other.Parent) &&
+                   EqualityComparer<KeyT >.Default.Equals(Key   , other.Key   ) &&
+                   EqualityComparer<NodeT>.Default.Equals(Left  , other.Left  ) &&
+                   EqualityComparer<NodeT>.Default.Equals(Right , other.Right );
         }
 
-        public override int  GetHashCode()
+        public override int GetHashCode()
         {
-            var hashCode = 1949823637;
+            var hashCode = -326891413;
 
-            hashCode = hashCode * -1521134295 + EqualityComparer<KeyT> .Default.GetHashCode(Key      );
-            hashCode = hashCode * -1521134295 + EqualityComparer<NodeT>.Default.GetHashCode(LeftNode );
-            hashCode = hashCode * -1521134295 + EqualityComparer<NodeT>.Default.GetHashCode(RightNode);
+            hashCode = hashCode * -1521134295 + EqualityComparer<NodeT>.Default.GetHashCode(Parent);
+            hashCode = hashCode * -1521134295 + EqualityComparer<KeyT >.Default.GetHashCode(Key   );
+            hashCode = hashCode * -1521134295 + EqualityComparer<NodeT>.Default.GetHashCode(Left  );
+            hashCode = hashCode * -1521134295 + EqualityComparer<NodeT>.Default.GetHashCode(Right );
+
             return hashCode;
         }
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BinaryTrees.Traversal
 {
     public class InOrderTraversal<NodeT, KeyT> : Traversal<NodeT, KeyT>
-        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>, new()
+        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>
         where KeyT : IComparable<KeyT>
     {
         public    override void Traverse  (NodeT root, Action<KeyT> action, TraversalMode mode = TraversalMode.LeftToRight)

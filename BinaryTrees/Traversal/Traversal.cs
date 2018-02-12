@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BinaryTrees.Traversal
 {
     public abstract class Traversal<NodeT, KeyT> : ITraversal<NodeT, KeyT>
-        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>, new()
+        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>
         where KeyT : IComparable<KeyT>
     {
         public    abstract void Traverse  (NodeT root, Action<KeyT> action, TraversalMode mode);

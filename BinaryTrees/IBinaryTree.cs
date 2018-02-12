@@ -1,19 +1,30 @@
-﻿using System;
+﻿using BinaryTrees.Traversal;
+using System;
+using System.Collections.Generic;
 
 namespace BinaryTrees
 {
-    public interface IBinaryTree<KeyT>: IEquatable<IBinaryTree<KeyT>> where KeyT : IComparable
+    public interface IBinaryTree<NodeT, KeyT>
+        where NodeT : class, IBinaryTreeNode<NodeT, KeyT>, IComparable<NodeT>
+        where KeyT : IComparable<KeyT>
     {
-        bool Equals(object obj);
-        int  Count { get; }
-        int  GetHashCode();
-        void InOrderTraverse(Action<KeyT> action);
-        void Insert(KeyT key);
-        KeyT Max();
-        KeyT Min();
-        void PostOrderTraverse(Action<KeyT> action);
-        void PreOrderTraverse (Action<KeyT> action);
-        void Remove(KeyT key);
-        bool Search(KeyT key);
+        int   Count { get;      }
+        NodeT Root  { get; set; }
+        ITraversal<NodeT, KeyT> Traversal { get; set; }
+
+        bool All     (Func<KeyT, bool> predicate);
+        bool Any     ();
+        bool Any     (Func<KeyT, bool> predicate);
+        void Clear   ();
+        bool Contains(IEnumerable<KeyT> keys);
+        bool Contains(KeyT key);
+        bool Contains(params KeyT[] keys);
+        void CopyTo  (KeyT[] array);
+        void Insert  (KeyT key);
+        void Insert  (params KeyT[] key);
+        bool Remove  (IEnumerable<KeyT> keys);
+        bool Remove  (KeyT key);
+        bool Remove  (params KeyT[] keys);
+        bool Remove  (Predicate<KeyT> match);
     }
 }
